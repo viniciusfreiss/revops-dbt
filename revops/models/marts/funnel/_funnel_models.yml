@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: fct_visitor_funnel
+    description: >
+      Jornada de cada visitante pelo funil. Uma linha por anonymous_id.
+      Cada coluna _at guarda a primeira vez que a etapa foi alcançada.
+    columns:
+      - name: anonymous_id
+        data_tests:
+          - unique
+          - not_null
+      - name: acquisition_channel
+        description: Canal da primeira sessão do visitante.
+        data_tests:
+          - not_null
+      - name: user_id
+        description: Nulo para quem nunca se cadastrou.
+        data_tests:
+          - unique
+
+  - name: mart_funnel_by_channel
+    description: >
+      Volume e conversão de cada etapa do funil por canal de aquisição.
+      Uma linha por canal.
+    columns:
+      - name: acquisition_channel
+        data_tests:
+          - unique
+          - not_null
+      - name: rate_visitor_to_investor
+        description: Parte dos visitantes do canal que chegou ao primeiro aporte.
