@@ -73,3 +73,28 @@ AD_METRICS = {
     "linkedin": {"cpc": 12.00, "ctr": 0.006, "click_to_session": 0.80},
     "bing":     {"cpc": 2.50,  "ctr": 0.040, "click_to_session": 0.85},
 }
+
+# Ciclos de deal depois do KYC aprovado
+MAX_DEALS_PER_USER = 4           # cada deal é um produto diferente
+MAX_SESSIONS_PER_DEAL = 4        # sessões antes da simulação de cada deal
+WIN_RATE_FIRST_DEAL = 0.45       # chance de o primeiro deal virar aporte
+WIN_RATE_REPEAT_DEAL = 0.60      # chance dos deals seguintes
+REPEAT_AFTER_WIN = 0.35          # chance de abrir outro deal depois de um ganho
+REPEAT_AFTER_LOSS = 0.20         # chance de abrir outro deal depois de uma perda
+MEAN_DAYS_BETWEEN_DEALS = 30
+
+# Valor do aporte segue uma lognormal (mediana em BRL e dispersão)
+INVESTMENT_MEDIAN = 15_000
+INVESTMENT_SIGMA = 0.9
+INVESTMENT_MIN = 1_000
+
+# Canais das sessões depois do cadastro (o usuário já conhece a marca)
+RETURN_CHANNELS = {
+    "direct": 0.35,
+    "meta": 0.25,
+    "google": 0.15,
+    "organic": 0.15,
+    "linkedin": 0.05,
+    "bing": 0.03,
+    "tiktok": 0.02,
+}

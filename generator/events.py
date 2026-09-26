@@ -69,6 +69,7 @@ def kyc_events(rng, visitor):
     uid = visitor["user_id"]
     signed_up_at = visitor["signed_up_at"]
     events = [make_event(rng, visitor, "signup_completed", signed_up_at, user_id=uid)]
+    visitor["kyc_approved_at"] = None
 
     if rng.random() < KYC_SUBMIT_RATE:
         submitted_at = signed_up_at + timedelta(minutes=rng.uniform(1, 30))
@@ -77,6 +78,7 @@ def kyc_events(rng, visitor):
         if rng.random() < KYC_APPROVAL_RATE:
             approved_at = submitted_at + timedelta(hours=rng.uniform(1, 48))
             events.append(make_event(rng, visitor, "kyc_approved", approved_at, user_id=uid))
+            visitor["kyc_approved_at"] = approved_at
 
     return events
 
