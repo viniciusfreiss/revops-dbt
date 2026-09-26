@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: mart_channel_unit_economics
+    description: >
+      Unit economics por canal no período inteiro, com crédito position based.
+      Canais sem custo (direct e organic) aparecem com gasto zero e CAC nulo.
+    columns:
+      - name: channel
+        data_tests:
+          - unique
+          - not_null
+      - name: spend
+        description: Soma do custo de mídia do canal.
+      - name: new_investors
+        description: Novos investidores atribuídos ao canal (fracionado pelos pesos).
+      - name: cac
+        description: Custo por novo investidor. Nulo quando o canal não tem custo.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: captacao_total
+        description: Volume aportado atribuído ao canal, novos e recorrentes.
+      - name: revenue
+        description: Captação multiplicada pela var revenue_take_rate.
+      - name: revenue_roas
+        description: Receita dividida pelo gasto. Acima de 1 o canal se paga no período.
