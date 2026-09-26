@@ -61,3 +61,15 @@ PRODUCT_VIEW_SHARE = 0.3           # parte desses eventos que é visualização 
 # Funil de KYC depois do cadastro
 KYC_SUBMIT_RATE = 0.75     # cadastrados que enviam o KYC
 KYC_APPROVAL_RATE = 0.85   # enviados que são aprovados
+
+# Métricas de entrega de cada canal pago
+#   cpc                 custo médio por clique, em BRL
+#   ctr                 cliques divididos por impressões
+#   click_to_session    parte dos cliques que vira sessão registrada no Segment
+AD_METRICS = {
+    "google":   {"cpc": 3.50,  "ctr": 0.045, "click_to_session": 0.85},
+    "meta":     {"cpc": 1.40,  "ctr": 0.012, "click_to_session": 0.70},
+    "tiktok":   {"cpc": 0.80,  "ctr": 0.008, "click_to_session": 0.60},
+    "linkedin": {"cpc": 12.00, "ctr": 0.006, "click_to_session": 0.80},
+    "bing":     {"cpc": 2.50,  "ctr": 0.040, "click_to_session": 0.85},
+}

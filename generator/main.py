@@ -4,6 +4,7 @@ import duckdb
 import numpy as np
 import pandas as pd
 
+from ad_spend import build_ad_spend
 from config import SEED
 from events import build_events
 from journeys import simulate_visitors
@@ -39,15 +40,19 @@ def main():
     visitors = simulate_visitors(rng)
     users = build_users(visitors)
     events = pd.DataFrame(build_events(visitors, rng))
+    ad_spend = build_ad_spend(events, rng)
 
     save(users, "raw_users")
     save(events, "raw_events")
+    save(ad_spend, "raw_ad_spend")
 
     rate = len(users) / len(visitors)
     print(f"\nvisitantes {len(visitors):,}")
     print(f"taxa de cadastro {rate:.1%}")
     print("\neventos por tipo")
     print(events["event_name"].value_counts().to_string())
+    print("\ninvestimento por canal (BRL)")
+    print(ad_spend.groupby("channel")["cost"].sum().round(0).sort_values(ascending=False).to_string())
 
 
 if __name__ == "__main__":
