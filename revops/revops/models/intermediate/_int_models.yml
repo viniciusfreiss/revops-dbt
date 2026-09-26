@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: int_identity_map
+    description: >
+      Mapa de identidade. Uma linha por anonymous_id que chegou a se cadastrar,
+      com o user_id correspondente e o momento em que o vínculo foi feito.
+    columns:
+      - name: anonymous_id
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_backend__users')
+                field: user_id
+      - name: linked_at
+        description: Primeiro evento com anonymous_id e user_id juntos.
+        data_tests:
+          - not_null
+
+  - name: int_events_identified
+    description: >
+      Eventos do Segment com o user_id preenchido retroativamente.
+      Uma linha por evento, a mesma grain do staging.
+    columns:
+      - name: event_id
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: >
+          Usuário do evento. Nulo apenas para visitantes que nunca se cadastraram.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_backend__users')
+                field: user_id
+      - name: is_backfilled
+        description: >
+          Verdadeiro quando o evento era anônimo e o usuário foi descoberto
+          pelo mapa de identidade.
