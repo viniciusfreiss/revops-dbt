@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: fct_touchpoint_attribution
+    description: >
+      Crédito de cada toque em cada deal. Uma linha por deal e sessão.
+      Os pesos de cada modelo somam 1 dentro de cada deal.
+    columns:
+      - name: touchpoint_id
+        data_tests:
+          - unique
+          - not_null
+      - name: weight_position_based
+        description: Peso no modelo oficial 40/20/40 (macro position_based_weight).
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: revenue_position_based
+        description: Valor do aporte do deal multiplicado pelo peso do toque.
+
+  - name: mart_attribution_by_channel
+    description: >
+      Receita e deals atribuídos por canal em position based, first touch e last touch.
+      Uma linha por canal.
+    columns:
+      - name: channel
+        data_tests:
+          - unique
+          - not_null
+
+unit_tests:
+  - name: test_position_based_weights
+    description: >
+      Confere os pesos nos casos de borda, jornadas com 1, 2 e 4 toques.
+    model: fct_touchpoint_attribution
+    given:
+      - input: ref('int_deal_touchpoints')
+        rows:
+          - {touchpoint_id: a1, deal_id: A, touch_number: 1, total_touches: 1}
+          - {touchpoint_id: b1, deal_id: B, touch_number: 1, total_touches: 2}
+          - {touchpoint_id: b2, deal_id: B, touch_number: 2, total_touches: 2}
+          - {touchpoint_id: c1, deal_id: C, touch_number: 1, total_touches: 4}
+          - {touchpoint_id: c2, deal_id: C, touch_number: 2, total_touches: 4}
+          - {touchpoint_id: c3, deal_id: C, touch_number: 3, total_touches: 4}
+          - {touchpoint_id: c4, deal_id: C, touch_number: 4, total_touches: 4}
+      - input: ref('stg_hubspot__deals')
+        rows:
+          - {deal_id: A, deal_stage: ganho}
+          - {deal_id: B, deal_stage: perdido}
+          - {deal_id: C, deal_stage: ganho}
+      - input: ref('stg_backend__investments')
+        rows:
+          - {deal_id: A, amount: 1000}
+          - {deal_id: C, amount: 1000}
+    expect:
+      rows:
+        - {touchpoint_id: a1, weight_position_based: 1.0, revenue_position_based: 1000}
+        - {touchpoint_id: b1, weight_position_based: 0.5, revenue_position_based: 0}
+        - {touchpoint_id: b2, weight_position_based: 0.5, revenue_position_based: 0}
+        - {touchpoint_id: c1, weight_position_based: 0.4, revenue_position_based: 400}
+        - {touchpoint_id: c2, weight_position_based: 0.1, revenue_position_based: 100}
+        - {touchpoint_id: c3, weight_position_based: 0.1, revenue_position_based: 100}
+        - {touchpoint_id: c4, weight_position_based: 0.4, revenue_position_based: 400}

@@ -16,6 +16,9 @@ vars:
   session_timeout_minutes: 30
   # Eventos disparados pelo backend. Não representam visita e ficam fora das sessões.
   server_side_events: ['kyc_approved', 'investment_started']
+  # Pesos do modelo position based. O que sobra vai para os toques do meio.
+  attribution_first_touch_weight: 0.4
+  attribution_last_touch_weight: 0.4
 
 clean-targets:
   - "target"
@@ -26,6 +29,8 @@ models:
     staging:
       +materialized: view
     intermediate:
+      +materialized: table
+    marts:
       +materialized: table
 
 seeds:
