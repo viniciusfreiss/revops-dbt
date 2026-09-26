@@ -1,0 +1,35 @@
+name: dbt CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Gerar dados sintéticos
+        run: python generator/main.py
+
+      - name: Instalar pacotes do dbt
+        working-directory: revops
+        run: dbt deps
+
+      - name: Rodar modelos e testes
+        working-directory: revops
+        run: dbt build

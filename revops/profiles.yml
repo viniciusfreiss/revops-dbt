@@ -1,0 +1,9 @@
+# Perfil do projeto. Fica no repositório porque o DuckDB é um arquivo local
+# e não tem senha. Projetos com banco remoto nunca devem versionar este arquivo.
+revops:
+  outputs:
+    dev:
+      type: duckdb
+      path: ../data/revops.duckdb
+      threads: 4
+  target: dev
