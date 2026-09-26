@@ -11,6 +11,12 @@ seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
+vars:
+  # Tempo sem atividade que encerra uma sessão
+  session_timeout_minutes: 30
+  # Eventos disparados pelo backend. Não representam visita e ficam fora das sessões.
+  server_side_events: ['kyc_approved', 'investment_started']
+
 clean-targets:
   - "target"
   - "dbt_packages"
@@ -19,6 +25,8 @@ models:
   revops:
     staging:
       +materialized: view
+    intermediate:
+      +materialized: table
 
 seeds:
   revops:

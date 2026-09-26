@@ -43,3 +43,42 @@ models:
         description: >
           Verdadeiro quando o evento era anônimo e o usuário foi descoberto
           pelo mapa de identidade.
+
+  - name: int_events_sessionized
+    description: >
+      Eventos de navegação com a sessão a que pertencem. Uma linha por evento.
+      Eventos do backend (var server_side_events) ficam de fora.
+    columns:
+      - name: event_id
+        data_tests:
+          - unique
+          - not_null
+      - name: session_id
+        data_tests:
+          - not_null
+      - name: event_sequence
+        description: Posição do evento dentro da sessão, começando em 1.
+
+  - name: int_sessions
+    description: >
+      Uma linha por sessão, com canal definido pelo evento de entrada.
+    data_tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "started_at <= ended_at"
+    columns:
+      - name: session_id
+        data_tests:
+          - unique
+          - not_null
+      - name: channel
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['google', 'meta', 'tiktok', 'linkedin', 'bing', 'organic', 'direct']
+      - name: channel_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['paid', 'organic', 'direct']
