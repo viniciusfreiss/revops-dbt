@@ -82,3 +82,38 @@ models:
           - accepted_values:
               arguments:
                 values: ['paid', 'organic', 'direct']
+
+  - name: int_deal_touchpoints
+    description: >
+      Sessões que antecederam cada deal, dentro da janela de atribuição.
+      Uma linha por deal e sessão.
+    columns:
+      - name: touchpoint_id
+        data_tests:
+          - unique
+          - not_null
+      - name: session_id
+        description: >
+          Cada sessão entra em no máximo um deal, porque as janelas
+          de deals do mesmo usuário não se sobrepõem.
+        data_tests:
+          - unique
+          - not_null
+      - name: deal_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_hubspot__deals')
+                field: deal_id
+      - name: deal_number
+        description: Ordem do deal na história do usuário, começando em 1.
+      - name: touch_number
+        description: Posição do toque na jornada do deal, começando em 1.
+      - name: total_touches
+        description: Quantidade de toques da jornada do deal.
+      - name: days_before_deal
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
