@@ -1,0 +1,125 @@
+version: 2
+
+models:
+  - name: stg_ads__spend
+    description: Gasto de mídia com tipos corrigidos. Uma linha por dia, canal e campanha.
+    columns:
+      - name: spend_id
+        description: Chave substituta gerada a partir de data, canal e campanha.
+        data_tests:
+          - unique
+          - not_null
+      - name: channel
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['google', 'meta', 'tiktok', 'linkedin', 'bing']
+      - name: cost
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+
+  - name: stg_segment__events
+    description: Eventos do Segment. Uma linha por evento.
+    columns:
+      - name: event_id
+        data_tests:
+          - unique
+          - not_null
+      - name: anonymous_id
+        data_tests:
+          - not_null
+      - name: user_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_backend__users')
+                field: user_id
+      - name: event_name
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - page_viewed
+                  - signup_completed
+                  - kyc_submitted
+                  - kyc_approved
+                  - product_viewed
+                  - simulation_completed
+                  - investment_started
+      - name: platform
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['web', 'app']
+      - name: product_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('products')
+                field: product_id
+
+  - name: stg_backend__users
+    description: Usuários cadastrados. Uma linha por usuário.
+    columns:
+      - name: user_id
+        data_tests:
+          - unique
+          - not_null
+      - name: signup_platform
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['web', 'app']
+
+  - name: stg_hubspot__deals
+    description: Deals do HubSpot. Uma linha por deal.
+    columns:
+      - name: deal_id
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_backend__users')
+                field: user_id
+      - name: product_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('products')
+                field: product_id
+      - name: deal_stage
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['novo', 'em_contato', 'proposta', 'ganho', 'perdido']
+
+  - name: stg_backend__investments
+    description: Aportes liquidados. Uma linha por aporte.
+    columns:
+      - name: transaction_id
+        data_tests:
+          - unique
+          - not_null
+      - name: deal_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('stg_hubspot__deals')
+                field: deal_id
+      - name: amount
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: false

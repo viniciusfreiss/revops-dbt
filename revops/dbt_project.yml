@@ -14,3 +14,16 @@ snapshot-paths: ["snapshots"]
 clean-targets:
   - "target"
   - "dbt_packages"
+
+models:
+  revops:
+    staging:
+      +materialized: view
+
+seeds:
+  revops:
+    products:
+      +column_types:
+        product_id: varchar
+        product_name: varchar
+        product_type: varchar

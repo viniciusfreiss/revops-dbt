@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Arquivos parquet gerados pelo generator, um por sistema de origem.
+    meta:
+      external_location: "../data/raw/{name}.parquet"
+    tables:
+      - name: raw_ad_spend
+        description: Gasto de mídia paga por dia, canal e campanha.
+      - name: raw_events
+        description: Eventos do Segment no portal e no app.
+      - name: raw_users
+        description: Cadastros vindos do backend.
+      - name: raw_deals
+        description: Deals do HubSpot.
+      - name: raw_investments
+        description: Aportes liquidados vindos do backend financeiro.
