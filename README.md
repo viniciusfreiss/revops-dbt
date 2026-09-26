@@ -2,6 +2,8 @@
 
 ![dbt CI](https://github.com/viniciusfreiss/revops-dbt/actions/workflows/dbt_ci.yml/badge.svg)
 
+📖 [Documentação do dbt com linhagem dos modelos](https://viniciusfreiss.github.io/revops-dbt/)
+
 Projeto dbt de RevOps para uma fintech fictícia de renda fixa. Modela o funil completo, do clique em mídia paga até o aporte liquidado, e calcula atribuição multi-touch e unit economics por canal.
 
 ## O problema
@@ -35,6 +37,7 @@ Os dados são sintéticos, gerados por um script Python que simula cinco sistema
 | Intermediate | `int_deal_touchpoints` | Liga cada deal às sessões dentro da janela de atribuição |
 | Marts | `fct_touchpoint_attribution`, `mart_attribution_by_channel` | Crédito por toque e receita por canal em três modelos |
 | Marts | `mart_channel_unit_economics` | Gasto, novos investidores, CAC, captação e ROAS por canal |
+| Marts | `fct_visitor_funnel`, `mart_funnel_by_channel` | Etapas do funil por visitante e conversão por canal de aquisição |
 
 ## Regras de negócio
 
@@ -51,6 +54,20 @@ Os dados são sintéticos, gerados por um script Python que simula cinco sistema
 Todas as regras ajustáveis estão no bloco `vars` do `revops/dbt_project.yml`.
 
 ## Resultados
+
+Funil do período, da primeira visita ao primeiro aporte.
+
+| Etapa | Pessoas | Conversão da etapa |
+|---|---|---|
+| Visita | 20.000 | |
+| Cadastro | 1.172 | 5,9% |
+| KYC enviado | 886 | 75,6% |
+| KYC aprovado | 725 | 81,8% |
+| Simulação | 703 | 97,0% |
+| Deal | 703 | 100% |
+| Primeiro aporte | 325 | 46,2% |
+
+Depois da aquisição, o KYC é o maior vazamento. De cada 100 cadastrados, 62 terminam aprovados, e os outros 38 já custaram mídia sem poder investir.
 
 Participação de cada canal na captação, conforme o modelo de atribuição.
 
@@ -78,15 +95,20 @@ Unit economics dos canais pagos no período.
 
 O LinkedIn tem a maior taxa de cadastro da simulação e mesmo assim o pior CAC, porque o custo por clique anula a vantagem de conversão. O ROAS mede só a janela de seis meses e não substitui uma análise de LTV por coorte.
 
+## Limitações
+
+O gerador diferencia os canais apenas na taxa de cadastro. Depois disso, leads de todos os canais têm a mesma chance de passar no KYC e de investir, então as diferenças por canal nas etapas seguintes do funil são ruído. Os modelos já estão prontos para mostrar variação de qualidade ao longo do funil, mas os dados simulados não a contêm.
+
 ## Qualidade
 
-89 verificações rodam a cada push no GitHub Actions, entre elas
+99 verificações rodam a cada push no GitHub Actions, entre elas
 
 - Unicidade e não nulidade de todas as chaves
 - Integridade entre tabelas (todo deal pertence a um usuário, todo aporte a um deal ganho)
 - Pesos de atribuição somando 1 em cada deal
 - Receita atribuída igual ao total aportado, em todos os modelos
 - Todo o gasto de mídia alocado a algum canal
+- Etapas do funil em ordem cronológica para cada visitante
 - Unit test da regra 40/20/40 nos casos de 1, 2 e 4 toques
 
 ## Stack
@@ -96,7 +118,7 @@ O LinkedIn tem a maior taxa de cadastro da simulação e mesmo assim o pior CAC,
 | Transformação | dbt Core |
 | Warehouse | DuckDB |
 | Geração de dados | Python |
-| CI | GitHub Actions |
+| CI e documentação | GitHub Actions e GitHub Pages |
 
 ## Como rodar
 
@@ -144,6 +166,7 @@ revops-dbt/
 - [x] Sessionização e touchpoints
 - [x] Atribuição position based
 - [x] Unit economics por canal
+- [x] Funil por canal de aquisição
 - [x] CI com GitHub Actions
-- [ ] Documentação publicada do dbt
+- [x] Documentação publicada do dbt
 - [ ] Análise de coorte com LTV e payback

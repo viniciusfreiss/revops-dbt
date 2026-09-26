@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,3 +40,34 @@ jobs:
       - name: Rodar modelos e testes
         working-directory: revops
         run: dbt build
+
+      - name: Gerar documentação
+        working-directory: revops
+        run: |
+          dbt docs generate --static
+          mkdir -p ../site
+          cp target/static_index.html ../site/index.html
+
+      - name: Enviar documentação para o Pages
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
